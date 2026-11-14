@@ -1,7 +1,7 @@
 {
   "name": "idle-compact-bg",
-  "version": "0.1.0",
-  "description": "Idle compaction for background sessions: compacts a large context about 54 minutes after the last turn, before the 1-hour prompt cache expires",
+  "version": "0.1.1",
+  "description": "Idle compaction for background sessions: compacts a large context 45 minutes after the last turn, before the 1-hour prompt cache expires",
   "license": "MIT",
   "author": {
     "name": "Koode"

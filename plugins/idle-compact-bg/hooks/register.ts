@@ -6,10 +6,14 @@ import type { Register, Timer } from 'claude-code'
 // turn reads a short summary instead of rewriting the whole context.
 
 const CACHE_TTL_MS = 60 * 60_000
-const FIRE_AFTER_MS = CACHE_TTL_MS * 0.9
-// Past this point the compaction request may not reach the cache in time
-// (the Mac slept, the worker stalled): skip instead of paying a cold read.
-const LATEST_FIRE_MS = CACHE_TTL_MS - 3 * 60_000
+// The cache window runs from the last model request, which this mod can't
+// see; it sees the turn end, which comes after the final response and the Stop
+// hooks. So fire well inside the window, at 45 minutes, which leaves 15
+// minutes for that gap and for the compaction request to reach the cache.
+const FIRE_AFTER_MS = CACHE_TTL_MS - 15 * 60_000
+// Past this point (the computer slept, the worker stalled) the cache may be
+// gone: skip, because a cold compaction costs as much as the turn it saves.
+const LATEST_FIRE_MS = CACHE_TTL_MS - 10 * 60_000
 const CHECK_EVERY_MS = 30_000
 const FLOOR_TOKENS = 100_000
 const DEFAULT_MIN_TOKENS = 200_000

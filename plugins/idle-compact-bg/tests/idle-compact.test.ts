@@ -62,11 +62,11 @@ describe('rules', () => {
     expect(minTokens('lots')).toBe(200_000)
   })
 
-  test('it fires between 54 and 57 minutes of idle time', async () => {
-    expect(timing(53.9 * MINUTE)).toBe('wait')
-    expect(timing(54 * MINUTE)).toBe('due')
-    expect(timing(57 * MINUTE)).toBe('due')
-    expect(timing(57.1 * MINUTE)).toBe('lapsed')
+  test('it fires between 45 and 50 minutes of idle time', async () => {
+    expect(timing(44.9 * MINUTE)).toBe('wait')
+    expect(timing(45 * MINUTE)).toBe('due')
+    expect(timing(50 * MINUTE)).toBe('due')
+    expect(timing(50.1 * MINUTE)).toBe('lapsed')
   })
 
   test('the setting, the size and the rate limits each veto', async () => {
@@ -81,19 +81,19 @@ describe('rules', () => {
 })
 
 describe('a background session', () => {
-  test('compacts once, about 54 minutes after the turn ends', async ($, on) => {
+  test('compacts once, about 45 minutes after the turn ends', async ($, on) => {
     const { clock, compactedAt, logs } = engine(on, { kind: 'bg' })
     await $.session.start({ cwd: '/', surface: null, isInteractive: false })
     await $.turn.start({ text: 'build it', turnId: 't1' })
     await $.turn.complete({ ...turnEnd, turnId: 't1' })
     const endedAt = clock.now()
 
-    await clock.advance(53 * MINUTE)
+    await clock.advance(44 * MINUTE)
     expect(compactedAt).toHaveLength(0)
 
     await clock.advance(2 * MINUTE)
     expect(compactedAt).toHaveLength(1)
-    expect((compactedAt[0] ?? 0) - endedAt).toBeGreaterThanOrEqual(54 * MINUTE)
+    expect((compactedAt[0] ?? 0) - endedAt).toBeGreaterThanOrEqual(45 * MINUTE)
     expect(logs).toContain('Compacted while idle, before the prompt cache expired (350000 → 20000 tokens) · idle-compact-bg')
 
     await clock.advance(120 * MINUTE)
@@ -106,13 +106,13 @@ describe('a background session', () => {
     await $.turn.start({ text: 'one', turnId: 't1' })
     await $.turn.complete({ ...turnEnd, turnId: 't1' })
 
-    await clock.advance(50 * MINUTE)
+    await clock.advance(40 * MINUTE)
     await $.turn.start({ text: 'two', turnId: 't2' })
     await clock.advance(70 * MINUTE)
     expect(compactedAt).toHaveLength(0)
 
     await $.turn.complete({ ...turnEnd, turnId: 't2' })
-    await clock.advance(53 * MINUTE)
+    await clock.advance(44 * MINUTE)
     expect(compactedAt).toHaveLength(0)
     await clock.advance(2 * MINUTE)
     expect(compactedAt).toHaveLength(1)
@@ -124,10 +124,10 @@ describe('a background session', () => {
     await $.turn.start({ text: 'main', turnId: 't1' })
     await $.turn.complete({ ...turnEnd, turnId: 't1' })
 
-    await clock.advance(30 * MINUTE)
+    await clock.advance(25 * MINUTE)
     await $.turn.start({ text: 'sub', turnId: 's1', agentId: 'a1' })
     await $.turn.complete({ ...turnEnd, turnId: 's1', agentId: 'a1' })
-    await clock.advance(25 * MINUTE)
+    await clock.advance(21 * MINUTE)
     expect(compactedAt).toHaveLength(1)
   })
 
