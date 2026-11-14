@@ -1,0 +1,6 @@
+{
+  "name": "koode-mods",
+  "description": "Claude Code mods by Koode",
+  "owner": { "name": "Koode" },
+  "plugins": [{ "name": "idle-compact-bg", "source": "./plugins/idle-compact-bg" }]
+}
